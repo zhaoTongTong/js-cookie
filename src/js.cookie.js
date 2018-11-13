@@ -5,12 +5,20 @@
  * Copyright 2006, 2015 Klaus Hartl & Fagner Brack
  * Released under the MIT license
  */
+
+/**
+ * todo: ;func()是什么写法
+ */
 ;(function (factory) {
 	var registeredInModuleLoader;
+
+	// require.js环境
 	if (typeof define === 'function' && define.amd) {
 		define(factory);
 		registeredInModuleLoader = true;
 	}
+
+	// node环境
 	if (typeof exports === 'object') {
 		module.exports = factory();
 		registeredInModuleLoader = true;
@@ -24,6 +32,11 @@
 		};
 	}
 }(function () {
+
+  /**
+	 * 工具函数（整合传入的参数为一个对象）
+   * @returns {{}}
+   */
 	function extend () {
 		var i = 0;
 		var result = {};
@@ -36,13 +49,30 @@
 		return result;
 	}
 
+  /**
+	 * 解码
+   * @param {object} s - key值
+   * @returns {XML|string|*|void}
+   */
 	function decode (s) {
 		return s.replace(/(%[0-9A-Z]{2})+/g, decodeURIComponent);
 	}
 
+  /**
+	 * 初始化
+   * @param converter
+   * @returns {api}
+   */
 	function init (converter) {
 		function api() {}
 
+    /**
+		 * 设置cookie
+     * @param {string} key - 键
+     * @param {string} value - 值
+     * @param {object} attributes - 属性
+     * @returns {string}
+     */
 		function set (key, value, attributes) {
 			if (typeof document === 'undefined') {
 				return;
@@ -52,6 +82,7 @@
 				path: '/'
 			}, api.defaults, attributes);
 
+			// 格式化过期时间
 			if (typeof attributes.expires === 'number') {
 				attributes.expires = new Date(new Date() * 1 + attributes.expires * 864e+5);
 			}
@@ -75,6 +106,8 @@
 				.replace(/%(23|24|26|2B|5E|60|7C)/g, decodeURIComponent)
 				.replace(/[\(\)]/g, escape);
 
+
+			// 将Attributes转化为字符串
 			var stringifiedAttributes = '';
 			for (var attributeName in attributes) {
 				if (!attributes[attributeName]) {
@@ -98,6 +131,12 @@
 			return (document.cookie = key + '=' + value + stringifiedAttributes);
 		}
 
+    /**
+		 * 获取cookie信息
+     * @param {string} key - 键
+     * @param json
+     * @returns {{}}
+     */
 		function get (key, json) {
 			if (typeof document === 'undefined') {
 				return;
@@ -106,9 +145,12 @@
 			var jar = {};
 			// To prevent the for loop in the first place assign an empty array
 			// in case there are no cookies at all.
+
+			// 获取cookie
 			var cookies = document.cookie ? document.cookie.split('; ') : [];
 			var i = 0;
 
+      // 格式化cookie为数组
 			for (; i < cookies.length; i++) {
 				var parts = cookies[i].split('=');
 				var cookie = parts.slice(1).join('=');
@@ -139,6 +181,7 @@
 			return key ? jar[key] : jar;
 		}
 
+		//给api添加属性
 		api.set = set;
 		api.get = function (key) {
 			return get(key, false /* read as raw */);
