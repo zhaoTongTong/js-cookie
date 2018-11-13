@@ -8,7 +8,9 @@
 
 /**
  * todo: ;func()是什么写法
+ * 是一种容错处理...
  */
+
 ;(function (factory) {
 	var registeredInModuleLoader;
 
